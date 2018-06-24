@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Coursetro Smart Contract</title>
 
     <link rel="stylesheet" type="text/css" href="main.css">
 
@@ -14,18 +15,24 @@
     <div class="container">
 
         <h1>Coursetro Instructor</h1>
+        <span id="countIns"></span>
 
         <h2 id="instructor"></h2>
+        <span id="insTrans"></span>
+        <hr>
+
         <img id="loader" src="https://loading.io/spinners/double-ring/lg.double-ring-spinner.gif">
 
-        <label for="name" class="col-lg-2 control-label">Instructor Name</label>
-        <input id="name" type="text">
+        <label for="fName" class="col-lg-2 control-label">First Name</label>
+        <input id="fName" type="text">
 
-        <label for="name" class="col-lg-2 control-label">Instructor Age</label>
+        <label for="lName" class="col-lg-2 control-label">Last Name</label>
+        <input id="lName" type="text">
+
+        <label for="age" class="col-lg-2 control-label">Instructor Age</label>
         <input id="age" type="text">
 
         <button id="button">Update Instructor</button>
-
 
     </div>
 
@@ -33,28 +40,54 @@
 
     <script>
        if (typeof web3 !== 'undefined') {
-            web3 = new Web3(web3.currentProvider);
-        } else {
-            // set the provider you want from Web3.providers
-            // run testrpc and attached to web3provider in remix.
-            web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
-        }
+           web3 = new Web3(web3.currentProvider);
+       } else {
+           web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+       }
 
-         web3.eth.defaultAccount = web3.eth.accounts[0];
+       web3.eth.defaultAccount = web3.eth.accounts[0];
 
-
-//ABI from Remix Compile -> Details->ABI Copy.
-        var CoursetroContract = web3.eth.contract([
+       var CoursetroContract = web3.eth.contract([
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"name": "fName",
+				"type": "bytes16"
+			},
+			{
+				"indexed": false,
+				"name": "lName",
+				"type": "bytes16"
+			},
+			{
+				"indexed": false,
+				"name": "age",
+				"type": "uint256"
+			}
+		],
+		"name": "instructorInfo",
+		"type": "event"
+	},
 	{
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_fName",
-				"type": "string"
+				"name": "_address",
+				"type": "address"
 			},
 			{
 				"name": "_age",
 				"type": "uint256"
+			},
+			{
+				"name": "_fName",
+				"type": "bytes16"
+			},
+			{
+				"name": "_lName",
+				"type": "bytes16"
 			}
 		],
 		"name": "setInstructor",
@@ -66,12 +99,8 @@
 	{
 		"constant": true,
 		"inputs": [],
-		"name": "getInstructor",
+		"name": "countInstructors",
 		"outputs": [
-			{
-				"name": "",
-				"type": "string"
-			},
 			{
 				"name": "",
 				"type": "uint256"
@@ -82,58 +111,113 @@
 		"type": "function"
 	},
 	{
-		"anonymous": false,
+		"constant": true,
 		"inputs": [
 			{
-				"indexed": false,
-				"name": "fName",
-				"type": "string"
+				"name": "_address",
+				"type": "address"
+			}
+		],
+		"name": "getInstructor",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
 			},
 			{
-				"indexed": false,
-				"name": "age",
+				"name": "",
+				"type": "bytes16"
+			},
+			{
+				"name": "",
+				"type": "bytes16"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getInstructors",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address[]"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
 				"type": "uint256"
 			}
 		],
-		"name": "Instructor",
-		"type": "event"
+		"name": "instructorAccts",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
 	}
 ]);
 
-var Coursetro = CoursetroContract.at('0x62348ee5fe5ea33366145eb66d49ac77572b2bc4');
-//  address taken from remix address at which contract has been deployed.
-        console.log(Coursetro);
-
-//Integrated with Events.
-
+       var Coursetro = CoursetroContract.at('0x79a78dd9106fd83dc637d97549b5de06965a7d37');
+//code with rpc
+/*
 var instructorEvent = Coursetro.Instructor();
 
-instructorEvent.watch(function(error, result) {
-    if (!error) {
-        $("#loader").hide();
-        $("#instructor").html(result.args.fName + ' (' + result.args.age + ' years old)');
-    } else {
-         $("#loader").hide();
-    }
-});
-
-$("#button").click(function() {
-     $("#loader").show();
-    Coursetro.setInstructor($("#name").val(), $("#age").val());
-});
-
-/*Old Code Plain UI
-Coursetro.getInstructor(function(error, result) {
+       instructorEvent.watch(function(error, result) {
            if (!error) {
-               $("#instructor").html(result[0]+' ('+result[1]+' years old)');
-           } else
-                console.log(error);
-       });
-
-       $("#button").click(function() {
-           Coursetro.setInstructor($("#name").val(), $("#age").val());
+               $("#loader").hide();
+               $("#instructor").html(result.args.name + ' (' + result.args.age + ' years old)');
+           } else {
+                $("#loader").hide();
+           }
        });
        */
+
+
+//EVENT connection to ropston
+       var instructorEvent = Coursetro.instructorInfo({}, 'latest');
+
+//event listening
+       instructorEvent.watch(function(error, result) {
+           if (result) {
+               if (result.blockHash != $("#insTrans").html())
+                    $("#loader").hide();
+
+                $("#insTrans").html('Block hash: ' + result.blockHash);
+               $("#instructor").html(web3.toAscii(result.args.fName) + ' ' + web3.toAscii(result.args.lName) + ' (' + result.args.age + ' years old)');
+           } else {
+                $("#loader").hide();
+           }
+       });
+
+       Coursetro.countInstructors((err, res) => {
+           if (res)
+            $("#countIns").html(res.c + ' Instructors');
+       })
+
+       $("#button").click(function() {
+            $("#loader").show();
+           Coursetro.setInstructor(web3.eth.defaultAccount, $("#age").val(), $("#fName").val(), $("#lName").val(), (err, res) => {
+               if (err) {
+                   $("#loader").hide();
+               }
+           });
+       });
+
     </script>
 
 </body>
