@@ -104,6 +104,8 @@ var Coursetro = CoursetroContract.at('0x62348ee5fe5ea33366145eb66d49ac77572b2bc4
 //  address taken from remix address at which contract has been deployed.
         console.log(Coursetro);
 
+//Integrated with Events.
+
 var instructorEvent = Coursetro.Instructor();
 
 instructorEvent.watch(function(error, result) {
@@ -119,6 +121,19 @@ $("#button").click(function() {
      $("#loader").show();
     Coursetro.setInstructor($("#name").val(), $("#age").val());
 });
+
+/*Old Code Plain UI
+Coursetro.getInstructor(function(error, result) {
+           if (!error) {
+               $("#instructor").html(result[0]+' ('+result[1]+' years old)');
+           } else
+                console.log(error);
+       });
+
+       $("#button").click(function() {
+           Coursetro.setInstructor($("#name").val(), $("#age").val());
+       });
+       */
     </script>
 
 </body>
