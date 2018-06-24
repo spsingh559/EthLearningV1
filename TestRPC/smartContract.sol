@@ -5,9 +5,12 @@ contract Coursetro {
    string fName;
    uint age;
    
+   event Instructor(string fName,uint age);
+   
    function setInstructor(string _fName, uint _age) public {
        fName = _fName;
        age = _age;
+      emit Instructor(_fName,_age);
    }
    
    function getInstructor() public constant returns (string, uint) {
